@@ -9,12 +9,18 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class EventFormInput(title: String,
-                          genre: String,
-                          description: String,
+                          organizers: String,
                           start_time: String,
-                          duration: String,
+                          end_time: String,
+                          description: String,
+                          category: String,
+                          zip_code: String,
                           city: String,
-                          country: String,
+                          street: String,
+                          street_number: String,
+                          phone: String,
+                          mail: String,
+                          website: String,
                           lat: String,
                           lon: String)
 
@@ -33,12 +39,18 @@ class EventController @Inject()(cc: EventControllerComponents)(
     Form(
       mapping(
         "title" -> nonEmptyText,
-        "genre" -> text,
-        "description" -> text,
+        "organizers" -> text,
         "start_time" -> text,
-        "duration" -> text,
+        "end_time" -> text,
+        "description" -> text,
+        "category" -> text,
+        "zip_code" -> text,
         "city" -> text,
-        "country" -> text,
+        "street" -> text,
+        "street_number" -> text,
+        "phone" -> text,
+        "mail" -> text,
+        "website" -> text,
         "lat" -> text,
         "lon" -> text
       )(EventFormInput.apply)(EventFormInput.unapply)
