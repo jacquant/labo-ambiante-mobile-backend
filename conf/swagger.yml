@@ -1,0 +1,9 @@
+---
+swagger: "2.0"
+info:
+  title: "Cultural Events API"
+  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+consumes:
+  - application/json
+produces:
+  - application/json

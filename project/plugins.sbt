@@ -7,3 +7,7 @@ addSbtPlugin("io.gatling" % "gatling-sbt" % "3.0.0")
 
 // Scala formatting: "sbt scalafmt"
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
+
+
+// Play-Swagger plugin
+addSbtPlugin("com.iheart" % "sbt-play-swagger" % "0.9.1-PLAY2.7")

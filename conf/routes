@@ -1,1 +1,47 @@
-->         /v1/events              v1.event.EventRouter
+###
+#  summary: Get all events
+#  responses:
+#    200:
+#      description: Return all the events
+#      schema:
+#        $ref: '#/definitions/v1.event.EventResource'
+###
+GET   /v1/events/                   v1.event.EventController.index
+
+###
+#  summary: Retrieve an event
+#  responses:
+#    200:
+#      description: Return an event based on id
+#      schema:
+#        $ref: '#/definitions/v1.event.EventResource'
+#    400:
+#      description: Invalid id
+#    404:
+#      description: Not found
+#    500:
+#      description: Internal error
+###
+GET   /v1/events/:id/               v1.event.EventController.show(id:String)
+
+###
+#  summary: Create an event
+#  responses:
+#    200:
+#      description: Return an event based on id
+#      schema:
+#        $ref: '#/definitions/v1.event.EventResource'
+#    500:
+#      description: Internal error
+#  parameters:
+#    - name: body
+#      schema:
+#        $ref: '#/definitions/v1.event.EventFormInput'
+###
+POST  /v1/events/                   v1.event.EventController.process
+
+### NoDocs ###
+GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
+
+### NoDocs ###
+GET   /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
