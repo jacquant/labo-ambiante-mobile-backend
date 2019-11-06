@@ -22,7 +22,8 @@ case class EventFormInput(title: String,
                           mail: String,
                           website: String,
                           lat: String,
-                          lon: String)
+                          lon: String,
+                          source: String)
 
 /**
   * Takes HTTP requests and produces JSON.
@@ -52,7 +53,8 @@ class EventController @Inject()(cc: EventControllerComponents)(
         "mail" -> text,
         "website" -> text,
         "lat" -> text,
-        "lon" -> text
+        "lon" -> text,
+        "source" -> text
       )(EventFormInput.apply)(EventFormInput.unapply)
     )
   }

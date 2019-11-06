@@ -25,7 +25,8 @@ case class EventResource(id: String,
                          mail: String,
                          website: String,
                          lat: String,
-                         lon: String)
+                         lon: String,
+                         source: String)
 
 object EventResource {
   /**
@@ -59,7 +60,8 @@ class EventResourceHandler @Inject()(
       eventInput.mail,
       eventInput.website,
       eventInput.lat,
-      eventInput.lon)
+      eventInput.lon,
+      eventInput.source)
     // We don't actually create the event, so return what we have
     eventRepository.create(data).map { id =>
       createEventResource(data)
@@ -99,7 +101,8 @@ class EventResourceHandler @Inject()(
       e.mail,
       e.website,
       e.lat,
-      e.lon)
+      e.lon,
+      e.source)
   }
 
 }

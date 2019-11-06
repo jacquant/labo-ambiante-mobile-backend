@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
       "io.lemonlabs" %% "scala-uri" % "1.4.10",
       "net.codingwell" %% "scala-guice" % "4.2.5",
       "org.webjars" % "swagger-ui" % "3.24.0",
+      "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.18.8-play27",
       "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test
     ),
   )
