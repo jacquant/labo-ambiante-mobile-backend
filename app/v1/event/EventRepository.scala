@@ -1,10 +1,13 @@
 package v1.event
 
-import javax.inject.{Inject, Singleton}
-
 import akka.actor.ActorSystem
+import javax.inject.{Inject, Singleton}
 import play.api.libs.concurrent.CustomExecutionContext
 import play.api.{Logger, MarkerContext}
+import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.api.Cursor
+import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.bson.{BSONDocument, BSONDocumentReader}
 
 import scala.concurrent.Future
 
@@ -26,6 +29,41 @@ final case class EventData(id: EventId,
                            lon: String,
                            source: String)
 
+object EventData {
+  implicit object EventDataReader extends BSONDocumentReader[EventData] {
+    def read(doc: BSONDocument): EventData = {
+      def readData(key: String): String = {
+        try {
+          doc.getAs[String](key).get
+        }
+        catch {
+          case _: Throwable => ""
+        }
+      }
+
+      val id = EventId(readData("id"))
+      val title = readData("title")
+      val organizers = readData("organizers")
+      val start_time = readData("start_time")
+      val end_time = readData("end_time")
+      val description = readData("description")
+      val category = readData("category")
+      val zip_code = readData("zip_code")
+      val city = readData("city")
+      val street = readData("street")
+      val street_number = readData("street_number")
+      val phone = readData("phone")
+      val mail = readData("mail")
+      val website = readData("website")
+      val lat = readData("lat")
+      val lon = readData("lon")
+      val source = readData("source")
+
+      EventData(id, title, organizers, start_time, end_time, description, category, zip_code, city, street, street_number, phone, mail, website, lat, lon, source)
+    }
+  }
+}
+
 class EventId private (val underlying: Int) extends AnyVal {
   override def toString: String = underlying.toString
 }
@@ -33,7 +71,12 @@ class EventId private (val underlying: Int) extends AnyVal {
 object EventId {
   def apply(raw: String): EventId = {
     require(raw != null)
-    new EventId(Integer.parseInt(raw))
+    try {
+      new EventId(Integer.parseInt(raw))
+    }
+    catch {
+      case _:Throwable => new EventId(666)
+    }
   }
 }
 
@@ -59,8 +102,10 @@ trait EventRepository {
   * such as rendering.
   */
 @Singleton
-class EventRepositoryImpl @Inject()()(implicit ec: EventExecutionContext)
+class EventRepositoryImpl @Inject()()(implicit ec: EventExecutionContext, reactiveMongoApi: ReactiveMongoApi)
     extends EventRepository {
+
+  private def eventsCollection: Future[BSONCollection] = reactiveMongoApi.database.map(_.collection("events"))
 
   private val logger = Logger(this.getClass)
 
@@ -114,18 +159,26 @@ class EventRepositoryImpl @Inject()()(implicit ec: EventExecutionContext)
 
   override def list()(
       implicit mc: MarkerContext): Future[Iterable[EventData]] = {
-    Future {
+
       logger.trace(s"list: ")
-      eventList
-    }
+
+      eventsCollection.flatMap(_.find(
+        selector = BSONDocument(),
+        projection = Option.empty[BSONDocument])
+          .cursor[EventData]()
+          .collect[Iterable](100, Cursor.FailOnError[Iterable[EventData]]())
+      )
   }
 
   override def get(id: EventId)(
       implicit mc: MarkerContext): Future[Option[EventData]] = {
-    Future {
+
       logger.trace(s"get: id = $id")
-      eventList.find(event => event.id == id)
-    }
+
+      eventsCollection.flatMap(_.find(
+        selector = BSONDocument("id" -> id.toString),
+        projection = Option.empty[BSONDocument])
+            .one[EventData])
   }
 
   def create(data: EventData)(implicit mc: MarkerContext): Future[EventId] = {
