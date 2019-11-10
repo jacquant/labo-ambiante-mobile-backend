@@ -7,7 +7,7 @@ import play.api.{Logger, MarkerContext}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.bson.{BSONDocument, BSONDocumentReader}
+import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter}
 
 import scala.concurrent.Future
 
@@ -60,6 +60,28 @@ object EventData {
       val source = readData("source")
 
       EventData(id, title, organizers, start_time, end_time, description, category, zip_code, city, street, street_number, phone, mail, website, lat, lon, source)
+    }
+  }
+
+  implicit object EventDataWriter extends BSONDocumentWriter[EventData] {
+    def write(e: EventData ): BSONDocument = {
+      BSONDocument("id" -> e.id.toString,
+        "title" -> e.title,
+        "organizers" -> e.organizers,
+        "start_time" -> e.start_time,
+        "end_time" -> e.end_time,
+        "description" -> e.description,
+        "category" -> e.category,
+        "zip_code" -> e.zip_code,
+        "city" -> e.city,
+        "street" -> e.street,
+        "street_number" -> e.street_number,
+        "phone" -> e.phone,
+        "mail" -> e.mail,
+        "website" -> e.website,
+        "lat" -> e.lat,
+        "lon" -> e.lon,
+        "source" -> e.source)
     }
   }
 }
@@ -182,10 +204,9 @@ class EventRepositoryImpl @Inject()()(implicit ec: EventExecutionContext, reacti
   }
 
   def create(data: EventData)(implicit mc: MarkerContext): Future[EventId] = {
-    Future {
       logger.trace(s"create: data = $data")
-      data.id
-    }
+      val writeResult = eventsCollection.flatMap(_.insert.one(data))
+      writeResult.map(_ => data.id)
   }
 
 }

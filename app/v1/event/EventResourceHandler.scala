@@ -5,6 +5,7 @@ import play.api.MarkerContext
 import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 /**
   * DTO for displaying event information.
@@ -45,7 +46,7 @@ class EventResourceHandler @Inject()(
 
   def create(eventInput: EventFormInput)(
       implicit mc: MarkerContext): Future[EventResource] = {
-    val data = EventData(EventId("999"),
+    val data = EventData(EventId((Random.nextInt(1000) + 50).toString),
       eventInput.title,
       eventInput.organizers,
       eventInput.start_time,
@@ -63,7 +64,7 @@ class EventResourceHandler @Inject()(
       eventInput.lon,
       eventInput.source)
     // We don't actually create the event, so return what we have
-    eventRepository.create(data).map { id =>
+    eventRepository.create(data).map { _ =>
       createEventResource(data)
     }
   }
