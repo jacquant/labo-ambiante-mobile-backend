@@ -63,10 +63,41 @@ class EventResourceHandler @Inject()(
       eventInput.lat,
       eventInput.lon,
       eventInput.source)
-    // We don't actually create the event, so return what we have
+
     eventRepository.create(data).map { _ =>
       createEventResource(data)
     }
+  }
+
+  def update(eventUpdate: EventFormUpdate)(
+    implicit mc: MarkerContext): Future[Option[EventResource]] = {
+
+    val data = EventData(EventId(eventUpdate.id),
+      eventUpdate.title,
+      eventUpdate.organizers,
+      eventUpdate.start_time,
+      eventUpdate.end_time,
+      eventUpdate.description,
+      eventUpdate.category,
+      eventUpdate.zip_code,
+      eventUpdate.city,
+      eventUpdate.street,
+      eventUpdate.street_number,
+      eventUpdate.phone,
+      eventUpdate.mail,
+      eventUpdate.website,
+      eventUpdate.lat,
+      eventUpdate.lon,
+      eventUpdate.source)
+
+    eventRepository.update(data)
+    val eventFuture = eventRepository.get(EventId(eventUpdate.id))
+    eventFuture.map { maybeEventData =>
+      maybeEventData.map { eventData =>
+        createEventResource(eventData)
+      }
+    }
+
   }
 
   def lookup(id: String)(

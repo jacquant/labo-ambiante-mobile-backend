@@ -109,6 +109,8 @@ class EventExecutionContext @Inject()(actorSystem: ActorSystem)
   * A pure non-blocking interface for the EventRepository.
   */
 trait EventRepository {
+  def update(data: EventData)(implicit mc: MarkerContext): Future[EventId]
+
   def create(data: EventData)(implicit mc: MarkerContext): Future[EventId]
 
   def list()(implicit mc: MarkerContext): Future[Iterable[EventData]]
@@ -207,6 +209,17 @@ class EventRepositoryImpl @Inject()()(implicit ec: EventExecutionContext, reacti
       logger.trace(s"create: data = $data")
       val writeResult = eventsCollection.flatMap(_.insert.one(data))
       writeResult.map(_ => data.id)
+  }
+
+  def update(data: EventData)(implicit mc: MarkerContext): Future[EventId] = {
+    logger.trace(s"update: data = $data")
+
+    val selector = BSONDocument("id" -> data.id.toString)
+    val modifier = BSONDocument("$set" -> data)
+
+    val updateResult = eventsCollection.flatMap(_.update.one(selector, modifier))
+
+    updateResult.map(_ => data.id)
   }
 
 }

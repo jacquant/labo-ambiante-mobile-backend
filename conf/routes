@@ -5,6 +5,8 @@
 #      description: Return all the events
 #      schema:
 #        $ref: '#/definitions/v1.event.EventResource'
+#    500:
+#      description: Internal error
 ###
 GET   /v1/events/                   v1.event.EventController.index
 
@@ -15,8 +17,6 @@ GET   /v1/events/                   v1.event.EventController.index
 #      description: Return an event based on id
 #      schema:
 #        $ref: '#/definitions/v1.event.EventResource'
-#    400:
-#      description: Invalid id
 #    404:
 #      description: Not found
 #    500:
@@ -27,8 +27,8 @@ GET   /v1/events/:id/               v1.event.EventController.show(id:String)
 ###
 #  summary: Create an event
 #  responses:
-#    200:
-#      description: Return an event based on id
+#    201:
+#      description: Return the created event
 #      schema:
 #        $ref: '#/definitions/v1.event.EventResource'
 #    500:
@@ -39,6 +39,24 @@ GET   /v1/events/:id/               v1.event.EventController.show(id:String)
 #        $ref: '#/definitions/v1.event.EventFormInput'
 ###
 POST  /v1/events/                   v1.event.EventController.process
+
+###
+#  summary: Update an event
+#  responses:
+#    200:
+#      description: Return the updated event
+#      schema:
+#        $ref: '#/definitions/v1.event.EventResource'
+#    404:
+#      description: Not found
+#    500:
+#      description: Internal error
+#  parameters:
+#    - name: body
+#      schema:
+#        $ref: '#/definitions/v1.event.EventFormUpdate'
+###
+PUT  /v1/events/                    v1.event.EventController.update
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
