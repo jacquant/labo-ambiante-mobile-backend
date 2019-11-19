@@ -1,12 +1,15 @@
 package com.labo_iot
 
 import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.adapter._
 import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives._
 
 import scala.util.{Failure, Success}
+
+import com.labo_iot.swagger.SwaggerDocService
 
 object LaboApp {
   private def startHttpServer(routes: Route, system: ActorSystem[_]): Unit = {
@@ -30,8 +33,10 @@ object LaboApp {
       val eventRegistryActor = context.spawn(EventRegistry(), "EventRegistryActor")
       context.watch(eventRegistryActor)
 
-      val routes = new EventRoutes(eventRegistryActor)(context.system)
-      startHttpServer(routes.eventRoutes, context.system)
+      val routes = new EventRoutes(eventRegistryActor)(context.system).eventRoutes ~
+        SwaggerDocService.routes ~ getFromResourceDirectory("swagger-ui")
+
+      startHttpServer(routes, context.system)
 
       Behaviors.empty
     }

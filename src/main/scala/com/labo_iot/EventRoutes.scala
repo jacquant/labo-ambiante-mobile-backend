@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import com.labo_iot.EventRegistry._
+import io.swagger.v3.oas.annotations.Operation
 
 import scala.concurrent.Future
 
@@ -27,6 +28,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   def deleteEvent(id: String): Future[ActionPerformed] =
     eventRegistry.ask(DeleteEvent(id, _))
 
+  @Operation(summary = "Event Routes")
   val eventRoutes: Route =
     pathPrefix("events") {
       concat(
