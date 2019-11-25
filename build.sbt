@@ -22,3 +22,6 @@ lazy val root = (project in file(".")).
       "org.scalatest"     %% "scalatest"                % "3.0.8"         % Test
     )
   )
+enablePlugins(JavaServerAppPackaging)
+enablePlugins(AshScriptPlugin)
+dockerBaseImage :="openjdk:jre-alpine"
