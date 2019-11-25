@@ -24,4 +24,5 @@ lazy val root = (project in file(".")).
   )
 enablePlugins(JavaServerAppPackaging)
 enablePlugins(AshScriptPlugin)
+packageName in Docker := packageName.value
 dockerBaseImage :="openjdk:jre-alpine"
