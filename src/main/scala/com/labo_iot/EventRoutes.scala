@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
-import javax.ws.rs.{DELETE, GET, POST, Path}
+import io.swagger.v3.oas.annotations.parameters.RequestBody
+import javax.ws.rs.{Consumes, DELETE, GET, POST, PUT, Path}
 
 import scala.concurrent.Future
 
@@ -23,12 +24,13 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   // If ask takes more time than this to complete the request is failed
   private implicit val timeout = Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
 
-  def getEvents(): Future[Events] =
-    eventRegistry.ask(GetEvents)
+  def getEvents(): Future[Events] = eventRegistry.ask(GetEvents)
 
   def getEvent(id: String): Future[GetEventResponse] = eventRegistry.ask(GetEvent(id, _))
 
   def createEvent(event: Event): Future[ActionPerformed] = eventRegistry.ask(CreateEvent(event, _))
+
+  def updateEvent(event: Event): Future[ActionPerformed] = eventRegistry.ask(UpdateEvent(event, _))
 
   def deleteEvent(id: String): Future[ActionPerformed] = eventRegistry.ask(DeleteEvent(id, _))
 
@@ -72,7 +74,12 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
 
   @Path("/events")
   @POST
-  @Operation(summary = "Create an event")
+  @Consumes(value = Array("application/json"))
+  @Operation(
+    summary = "Create an event",
+    requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
+    responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
+  )
   def createEventRoute = post {
     path("events") {
       entity(as[Event]) { event =>
@@ -84,8 +91,37 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   }
 
   @Path("/events")
+  @PUT
+  @Consumes(value = Array("application/json"))
+  @Operation(
+    summary = "Update an event",
+    requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
+    responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
+  )
+  def updateEventRoute = put {
+    path("events") {
+      entity(as[Event]) { event =>
+        onSuccess(updateEvent(event)) { performed =>
+          complete((StatusCodes.OK, performed))
+        }
+      }
+    }
+  }
+
+  @Path("/events/{eventId}")
   @DELETE
-  @Operation(summary = "Delete an event by ID")
+  @Operation(
+    summary = "Delete an event by ID",
+    parameters = Array(
+      new Parameter(name = "eventId", in = ParameterIn.PATH, required = true, description = "Id of the event to be fetched")
+    ),
+    responses = Array(
+      new ApiResponse(responseCode = "200", description = "Ok",
+        content = Array(new Content(mediaType = "application/json", schema = new Schema(implementation = classOf[Event])))),
+      new ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
+      new ApiResponse(responseCode = "404", description = "Event not found")
+    )
+  )
   def deleteEventRoute = delete {
     path("events" / IntNumber) {
       eventId =>
@@ -99,6 +135,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     getEventsRoute,
     getEventRoute,
     createEventRoute,
+    updateEventRoute,
     deleteEventRoute
   )
 }
