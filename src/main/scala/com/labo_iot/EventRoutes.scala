@@ -69,10 +69,10 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     )
   )
   def getEventRoute = get {
-    path("events" / IntNumber) {
+    path("events" / Segment) {
       eventId =>
         rejectEmptyResponse {
-          onSuccess(getEvent(eventId.toString)) { response =>
+          onSuccess(getEvent(eventId)) { response =>
             complete(response.maybeEvent)
           }
         }
@@ -130,9 +130,9 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     )
   )
   def deleteEventRoute = delete {
-    path("events" / IntNumber) {
+    path("events" / Segment) {
       eventId =>
-        onSuccess(deleteEvent(eventId.toString)) { performed =>
+        onSuccess(deleteEvent(eventId)) { performed =>
           complete((StatusCodes.OK, performed))
         }
     }
