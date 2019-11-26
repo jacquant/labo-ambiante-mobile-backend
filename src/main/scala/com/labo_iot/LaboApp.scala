@@ -34,7 +34,7 @@ object LaboApp {
       context.watch(eventRegistryActor)
 
       val routes = new EventRoutes(eventRegistryActor)(context.system).eventRoutes ~
-        SwaggerDocService.routes ~ getFromResourceDirectory("swagger-ui.swagger-ui")
+        SwaggerDocService.routes ~ getFromResourceDirectory("swagger-ui")
 
       startHttpServer(routes, context.system)
 
