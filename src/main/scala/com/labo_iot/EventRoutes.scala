@@ -24,7 +24,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   // If ask takes more time than this to complete the request is failed
   private implicit val timeout = Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
 
-  def getEvents(): Future[Events] = eventRegistry.ask(GetEvents)
+  def getEvents(params: Params): Future[Events] = eventRegistry.ask(GetEvents(params, _))
 
   def getEvent(id: String): Future[GetEventResponse] = eventRegistry.ask(GetEvent(id, _))
 
@@ -37,14 +37,21 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @GET
   @Path("/events")
   @Operation(summary = "Get all events",
+    parameters = Array(
+      new Parameter(name = "category", in = ParameterIn.QUERY, required = false, description = "Filter on category"),
+      new Parameter(name = "city", in = ParameterIn.QUERY, required = false, description = "Filter on city")
+    ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
         content = Array(new Content(mediaType = "application/json", schema = new Schema(implementation = classOf[Events])))))
   )
-  def getEventsRoute = get {
+  def getEventsRoute =
     path("events") {
-      complete(getEvents())
-    }
+      parameters(Symbol("category").?, Symbol("city").?) { (category, city) =>
+        get {
+          complete(getEvents(new Params(category, city)))
+        }
+      }
   }
 
   @GET

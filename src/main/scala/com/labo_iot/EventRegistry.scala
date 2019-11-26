@@ -26,10 +26,13 @@ final case class Event(id: String,
 
 final case class Events(events: immutable.Seq[Event])
 
+final class Params(val category: Option[String],
+                   val city: Option[String])
+
 object EventRegistry {
   // actor protocol
   sealed trait Command
-  final case class GetEvents(replyTo: ActorRef[Events]) extends Command
+  final case class GetEvents(params: Params, replyTo: ActorRef[Events]) extends Command
   final case class CreateEvent(event: Event, replyTo: ActorRef[ActionPerformed]) extends Command
   final case class GetEvent(name: String, replyTo: ActorRef[GetEventResponse]) extends Command
   final case class DeleteEvent(name: String, replyTo: ActorRef[ActionPerformed]) extends Command
@@ -87,10 +90,25 @@ object EventRegistry {
     Event("44","Marchés aux Chrysanthèmes","Affaires économiques","2019-10-25","2019-11-01","Sans oublier la vente de fleurs sur les marchés de...","foire","5000","NAMUR","Place de l'Ange","","+32 (0) 81 24 72 26","affaires.economiques@ville.namur.be","https://www.namur.be/fr/agenda/marches-au-chrysanthemes",50.4639902487,4.8656460502, "namur-agenda-des-evenements",0.0)
   )
 
-  private def registry(events: Set[Event]): Behavior[Command] =
+  private def registry(events: Set[Event]): Behavior[Command] = {
+    def categoryFilter(e: Set[Event], category: Option[String]): Set[Event] = {
+      category match {
+        case Some(s) => e.filter(_.category == s)
+        case None => e
+      }
+    }
+
+    def cityFilter(e: Set[Event], city: Option[String]): Set[Event] = {
+      city match {
+        case Some(s) => e.filter(_.city == s)
+        case None => e
+      }
+    }
+
     Behaviors.receiveMessage {
-      case GetEvents(replyTo) =>
-        replyTo ! Events(events.toSeq)
+      case GetEvents(params, replyTo) =>
+        val filteredEvents = categoryFilter(cityFilter(events, params.city), params.category)
+        replyTo ! Events(filteredEvents.toSeq)
         Behaviors.same
       case CreateEvent(event, replyTo) =>
         replyTo ! ActionPerformed(s"Event ${event.id} created.")
@@ -105,4 +123,5 @@ object EventRegistry {
         replyTo ! ActionPerformed(s"Event ${event.id} update.")
         registry(events.filterNot(_.id == event.id) + event)
     }
+  }
 }
