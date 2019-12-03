@@ -37,6 +37,7 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   @GET
   @Path("/cities")
   @Operation(summary = "Get all cities",
+    tags = Array("Cities"),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
         content = Array(new Content(mediaType = "application/json", schema = new Schema(implementation = classOf[Cities])))))
@@ -51,6 +52,7 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   @Path("/cities/{cityId}")
   @Operation(
     summary = "Find a city by ID",
+    tags = Array("Cities"),
     parameters = Array(
       new Parameter(name = "cityId", in = ParameterIn.PATH, required = true, description = "Id of the city to be fetched")
     ),
@@ -77,6 +79,7 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Create a city",
+    tags = Array("Cities"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[City])))),
     responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
   )
@@ -95,6 +98,7 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Update an city",
+    tags = Array("Cities"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[City])))),
     responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
   )
@@ -112,6 +116,7 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   @DELETE
   @Operation(
     summary = "Delete an city by ID",
+    tags = Array("Cities"),
     parameters = Array(
       new Parameter(name = "cityId", in = ParameterIn.PATH, required = true, description = "Id of the city to be fetched")
     ),

@@ -37,6 +37,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @GET
   @Path("/events")
   @Operation(summary = "Get all events",
+    tags = Array("Events"),
     parameters = Array(
       new Parameter(name = "category", in = ParameterIn.QUERY, required = false, description = "Filter on category"),
       new Parameter(name = "city", in = ParameterIn.QUERY, required = false, description = "Filter on city")
@@ -58,6 +59,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @Path("/events/{eventId}")
   @Operation(
     summary = "Find an event by ID",
+    tags = Array("Events"),
     parameters = Array(
       new Parameter(name = "eventId", in = ParameterIn.PATH, required = true, description = "Id of the event to be fetched")
     ),
@@ -83,6 +85,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @POST
   @Consumes(value = Array("application/json"))
   @Operation(
+    tags = Array("Events"),
     summary = "Create an event",
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
     responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
@@ -101,6 +104,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @PUT
   @Consumes(value = Array("application/json"))
   @Operation(
+    tags = Array("Events"),
     summary = "Update an event",
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
     responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
@@ -118,6 +122,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @Path("/events/{eventId}")
   @DELETE
   @Operation(
+    tags = Array("Events"),
     summary = "Delete an event by ID",
     parameters = Array(
       new Parameter(name = "eventId", in = ParameterIn.PATH, required = true, description = "Id of the event to be fetched")

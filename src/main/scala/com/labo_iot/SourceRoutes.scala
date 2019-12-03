@@ -37,6 +37,7 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   @GET
   @Path("/sources")
   @Operation(summary = "Get all sources",
+    tags = Array("Sources"),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
         content = Array(new Content(mediaType = "application/json", schema = new Schema(implementation = classOf[Sources])))))
@@ -51,6 +52,7 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   @Path("/sources/{sourceId}")
   @Operation(
     summary = "Find a source by ID",
+    tags = Array("Sources"),
     parameters = Array(
       new Parameter(name = "sourceId", in = ParameterIn.PATH, required = true, description = "Id of the source to be fetched")
     ),
@@ -77,6 +79,7 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Create a source",
+    tags = Array("Sources"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Source])))),
     responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
   )
@@ -95,6 +98,7 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Update an source",
+    tags = Array("Sources"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Source])))),
     responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
   )
@@ -112,6 +116,7 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   @DELETE
   @Operation(
     summary = "Delete an source by ID",
+    tags = Array("Sources"),
     parameters = Array(
       new Parameter(name = "sourceId", in = ParameterIn.PATH, required = true, description = "Id of the source to be fetched")
     ),

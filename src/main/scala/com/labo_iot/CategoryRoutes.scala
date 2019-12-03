@@ -37,6 +37,7 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   @GET
   @Path("/categories")
   @Operation(summary = "Get all categories",
+    tags = Array("Categories"),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
         content = Array(new Content(mediaType = "application/json", schema = new Schema(implementation = classOf[Categories])))))
@@ -51,6 +52,7 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   @Path("/categories/{categoryId}")
   @Operation(
     summary = "Find a category by ID",
+    tags = Array("Categories"),
     parameters = Array(
       new Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "Id of the category to be fetched")
     ),
@@ -77,6 +79,7 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Create a category",
+    tags = Array("Categories"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Category])))),
     responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
   )
@@ -95,6 +98,7 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   @Consumes(value = Array("application/json"))
   @Operation(
     summary = "Update an category",
+    tags = Array("Categories"),
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Category])))),
     responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
   )
@@ -112,6 +116,7 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   @DELETE
   @Operation(
     summary = "Delete an category by ID",
+    tags = Array("Categories"),
     parameters = Array(
       new Parameter(name = "categoryId", in = ParameterIn.PATH, required = true, description = "Id of the category to be fetched")
     ),
