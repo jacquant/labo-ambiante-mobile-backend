@@ -2,6 +2,7 @@ package com.labo_iot
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import akka.http.scaladsl.model.DateTime
 
 import scala.collection.immutable
 
@@ -26,8 +27,109 @@ final case class Event(id: String,
 
 final case class Events(events: immutable.Seq[Event])
 
-final class Params(val category: Option[String],
-                   val city: Option[String])
+final class Params(categoryP: Option[String],
+                   cityP: Option[String],
+                   sourceP: Option[String],
+                   start_time_maxP: Option[String],
+                   start_time_minP: Option[String],
+                   sound_level_maxP: Option[String],
+                   sound_level_minP: Option[String]
+                  ) {
+  val category: Option[Set[String]] = stringToSetString(categoryP)
+  val city: Option[Set[String]] = stringToSetString(cityP)
+  val source: Option[Set[String]] = stringToSetString(sourceP)
+  val start_time_max: Option[DateTime] = stringToDateTime(start_time_maxP)
+  val start_time_min: Option[DateTime] = stringToDateTime(start_time_minP)
+  val sound_level_max: Option[Double] = stringToDouble(sound_level_maxP)
+  val sound_level_min: Option[Double] = stringToDouble(sound_level_minP)
+
+  private def stringToSetString(param: Option[String]): Option[Set[String]] = param match {
+    case Some(p) => Some(p.split(",").toSet)
+    case None => None
+  }
+
+  private def stringToDouble(param: Option[String]): Option[Double] = param match {
+    case Some(p) => p.toDoubleOption
+    case None => None
+  }
+
+  private def stringToDateTime(param: Option[String]): Option[DateTime] = param match {
+    case Some(p) => DateTime.fromIsoDateTimeString(p)
+    case None => None
+  }
+
+  def filterEvents(events: Set[Event]): Set[Event] = {
+    categoryFilter(
+      cityFilter(
+        sourceFilter(
+          start_time_maxFilter(
+            start_time_minFilter(
+              sound_level_maxFilter(
+                sound_level_minFilter(events)
+              ))))))
+  }
+
+  private def categoryFilter(events: Set[Event]): Set[Event] = {
+    category match {
+      case Some(s) => events.filter(e => s.contains(e.category))
+      case None => events
+    }
+  }
+
+  private def cityFilter(events: Set[Event]): Set[Event] = {
+    city match {
+      case Some(s) => events.filter(e => s.contains(e.city))
+      case None => events
+    }
+  }
+
+  private def sourceFilter(events: Set[Event]): Set[Event] = {
+    source match {
+      case Some(s) => events.filter(e => s.contains(e.source))
+      case None => events
+    }
+  }
+
+  private def start_time_maxFilter(events: Set[Event]): Set[Event] = {
+    start_time_max match {
+      case Some(s) => events.filter(e => {
+        val currentDateTime = DateTime.fromIsoDateTimeString(e.start_time)
+        currentDateTime match {
+          case Some(v) => v.compareTo(s) <= 0
+          case None => false
+        }
+      })
+      case None => events
+    }
+  }
+
+  private def start_time_minFilter(events: Set[Event]): Set[Event] = {
+    start_time_min match {
+      case Some(s) => events.filter(e => {
+        val currentDateTime = DateTime.fromIsoDateTimeString(e.start_time)
+        currentDateTime match {
+          case Some(v) => v.compareTo(s) >= 0
+          case None => false
+        }
+      })
+      case None => events
+    }
+  }
+
+  private def sound_level_maxFilter(events: Set[Event]): Set[Event] = {
+    sound_level_max match {
+      case Some(s) => events.filter(s >= _.sound_level)
+      case None => events
+    }
+  }
+
+  private def sound_level_minFilter(events: Set[Event]): Set[Event] = {
+    sound_level_min match {
+      case Some(s) => events.filter(s <= _.sound_level)
+      case None => events
+    }
+  }
+}
 
 object EventRegistry {
   // actor protocol
@@ -91,23 +193,9 @@ object EventRegistry {
   )
 
   private def registry(events: Set[Event]): Behavior[Command] = {
-    def categoryFilter(e: Set[Event], category: Option[String]): Set[Event] = {
-      category match {
-        case Some(s) => e.filter(_.category == s)
-        case None => e
-      }
-    }
-
-    def cityFilter(e: Set[Event], city: Option[String]): Set[Event] = {
-      city match {
-        case Some(s) => e.filter(_.city == s)
-        case None => e
-      }
-    }
-
     Behaviors.receiveMessage {
       case GetEvents(params, replyTo) =>
-        val filteredEvents = categoryFilter(cityFilter(events, params.city), params.category)
+        val filteredEvents = params.filterEvents(events)
         replyTo ! Events(filteredEvents.toSeq)
         Behaviors.same
       case CreateEvent(event, replyTo) =>

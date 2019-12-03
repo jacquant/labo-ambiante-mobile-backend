@@ -40,7 +40,12 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     tags = Array("Events"),
     parameters = Array(
       new Parameter(name = "category", in = ParameterIn.QUERY, required = false, description = "Filter on category"),
-      new Parameter(name = "city", in = ParameterIn.QUERY, required = false, description = "Filter on city")
+      new Parameter(name = "city", in = ParameterIn.QUERY, required = false, description = "Filter on city"),
+      new Parameter(name = "source", in = ParameterIn.QUERY, required = false, description = "Filter on source"),
+      new Parameter(name = "start_time_max", in = ParameterIn.QUERY, required = false, description = "Filter on maximum start time"),
+      new Parameter(name = "start_time_min", in = ParameterIn.QUERY, required = false, description = "Filter on minimun start time"),
+      new Parameter(name = "sound_level_max", in = ParameterIn.QUERY, required = false, description = "Filter on maximum sound level"),
+      new Parameter(name = "sound_level_min", in = ParameterIn.QUERY, required = false, description = "Filter on minimum sound level")
     ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
@@ -48,9 +53,13 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   )
   def getEventsRoute =
     path("events") {
-      parameters(Symbol("category").?, Symbol("city").?) { (category, city) =>
+      parameters(Symbol("category").?, Symbol("city").?, Symbol("source").?,
+        Symbol("start_time_max").?, Symbol("start_time_min").?,
+        Symbol("sound_level_max").?, Symbol("sound_level_min").?)
+      { (category, city, source, start_time_max, start_time_min, sound_level_max, sound_level_min) =>
         get {
-          complete(getEvents(new Params(category, city)))
+          complete(getEvents(new Params(category, city, source, start_time_max, start_time_min,
+            sound_level_max, sound_level_min)))
         }
       }
   }
