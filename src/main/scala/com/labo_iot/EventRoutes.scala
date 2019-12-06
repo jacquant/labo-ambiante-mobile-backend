@@ -42,8 +42,8 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
       new Parameter(name = "category", in = ParameterIn.QUERY, required = false, description = "Filter on category"),
       new Parameter(name = "city", in = ParameterIn.QUERY, required = false, description = "Filter on city"),
       new Parameter(name = "source", in = ParameterIn.QUERY, required = false, description = "Filter on source"),
-      new Parameter(name = "start_time_max", in = ParameterIn.QUERY, required = false, description = "Filter on maximum start time"),
-      new Parameter(name = "start_time_min", in = ParameterIn.QUERY, required = false, description = "Filter on minimun start time"),
+      new Parameter(name = "start_time_max", in = ParameterIn.QUERY, required = false, description = "Filter on maximum start time (yyyy-mm-ddThh:mm:ss format)"),
+      new Parameter(name = "start_time_min", in = ParameterIn.QUERY, required = false, description = "Filter on minimun start time (yyyy-mm-ddThh:mm:ss format)"),
       new Parameter(name = "sound_level_max", in = ParameterIn.QUERY, required = false, description = "Filter on maximum sound level"),
       new Parameter(name = "sound_level_min", in = ParameterIn.QUERY, required = false, description = "Filter on minimum sound level")
     ),
@@ -96,6 +96,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @Operation(
     tags = Array("Events"),
     summary = "Create an event",
+    description = "start_time and end_time must be on yyyy-mm-ddThh:mm:ss format to work properly",
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
     responses = Array(new ApiResponse(responseCode = "201", description = "Created"))
   )
@@ -115,6 +116,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
   @Operation(
     tags = Array("Events"),
     summary = "Update an event",
+    description = "start_time and end_time must be on yyyy-mm-ddThh:mm:ss format to work properly",
     requestBody = new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[Event])))),
     responses = Array(new ApiResponse(responseCode = "200", description = "Ok"))
   )
