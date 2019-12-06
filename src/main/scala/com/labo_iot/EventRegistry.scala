@@ -44,7 +44,7 @@ final class Params(categoryP: Option[String],
   val sound_level_min: Option[Double] = stringToDouble(sound_level_minP)
 
   private def stringToSetString(param: Option[String]): Option[Set[String]] = param match {
-    case Some(p) => Some(p.split(",").toSet)
+    case Some(p) => Some(p.toLowerCase.split(",").toSet)
     case None => None
   }
 
@@ -71,21 +71,21 @@ final class Params(categoryP: Option[String],
 
   private def categoryFilter(events: Set[Event]): Set[Event] = {
     category match {
-      case Some(s) => events.filter(e => s.contains(e.category))
+      case Some(s) => events.filter(e => s.contains(e.category.toLowerCase))
       case None => events
     }
   }
 
   private def cityFilter(events: Set[Event]): Set[Event] = {
     city match {
-      case Some(s) => events.filter(e => s.contains(e.city))
+      case Some(s) => events.filter(e => s.contains(e.city.toLowerCase))
       case None => events
     }
   }
 
   private def sourceFilter(events: Set[Event]): Set[Event] = {
     source match {
-      case Some(s) => events.filter(e => s.contains(e.source))
+      case Some(s) => events.filter(e => s.contains(e.source.toLowerCase))
       case None => events
     }
   }
