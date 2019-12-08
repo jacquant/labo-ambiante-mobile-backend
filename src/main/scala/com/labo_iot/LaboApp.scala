@@ -46,6 +46,7 @@ object LaboApp {
         new CategoryRoutes(categoryRegistryActor)(context.system).categoryRoutes ~
         new CityRoutes(cityRegistryActor)(context.system).cityRoutes ~
         new SourceRoutes(sourceRegistryActor)(context.system).sourceRoutes ~
+        new AuthRoutes()(context.system).authRoutes ~
         SwaggerDocService.routes ~ getFromResourceDirectory("swagger-ui")
 
       startHttpServer(routes, context.system)
