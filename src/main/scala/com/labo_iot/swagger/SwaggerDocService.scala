@@ -7,7 +7,8 @@ import com.labo_iot.{AuthRoutes, CategoryRoutes, CityRoutes, EventRoutes, Source
 object SwaggerDocService extends SwaggerHttpService {
   override val apiClasses: Set[Class[_]] = Set(classOf[EventRoutes],classOf[CategoryRoutes],
     classOf[CityRoutes], classOf[SourceRoutes], classOf[AuthRoutes])
- // override val host = "0.0.0.0:8181" // the url of your api, not swagger's json endpoint
+  // override val host = "0.0.0.0:8181" // the url of your api, not swagger's json endpoint
+  //override val securitySchemeDefinitions = Map("basicAuth" -> new BasicAuthDefinition())
   override val apiDocsPath = "api-docs" // where you want the swagger-json endpoint exposed
   override val info = Info("Labo IOT - Events API",
     "1.0",

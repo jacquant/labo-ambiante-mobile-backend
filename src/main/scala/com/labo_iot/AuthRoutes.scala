@@ -11,9 +11,10 @@ import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.AuthRegistry._
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.security.{SecurityRequirement, SecurityScheme, SecuritySchemes}
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.{GET, HeaderParam, Path}
 
@@ -29,7 +30,18 @@ case class OAuthToken(access_token: String = java.util.UUID.randomUUID().toStrin
 case class LoggedInUser(basicAuthCredentials: BasicAuthCredentials,
                         oAuthToken: OAuthToken = new OAuthToken,
                         loggedInAt: LocalDateTime = LocalDateTime.now())
-
+@SecuritySchemes(Array(
+  new SecurityScheme(
+    name = "basicAuth",
+    `type` = SecuritySchemeType.HTTP,
+    scheme = "basic"
+  ),
+  new SecurityScheme(
+    name = "bearerAuth",
+    `type` = SecuritySchemeType.HTTP,
+    scheme = "bearer"
+  )
+))
 class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val system: ActorSystem[_]) {
 
   import JsonFormats._
@@ -69,7 +81,7 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
     summary = "Authentication",
     description = "Get token, credentials for testing purpose : user:pass ou user2:pass2",
     security = Array(
-      new SecurityRequirement(name = "Basic Authentication")
+      new SecurityRequirement(name = "basicAuth")
     ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
@@ -97,7 +109,7 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
     summary = "Get user's filter data",
     description = "Get user's filter data which can be used to filter events on the map",
     security = Array(
-      new SecurityRequirement(name = "Basic Authentication")
+      new SecurityRequirement(name = "bearerAuth")
     ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
@@ -125,7 +137,7 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
     summary = "Get user's event data",
     description = "Get user's event data which can be used to create custom event",
     security = Array(
-      new SecurityRequirement(name = "Basic Authentication")
+      new SecurityRequirement(name = "bearerAuth")
     ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Ok",
