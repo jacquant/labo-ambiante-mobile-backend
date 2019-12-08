@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.SourceRegistry._
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
@@ -44,7 +45,9 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
   )
   def getSourcesRoute =
     path("sources") { get {
-          complete(getSources())
+          cors() {
+            complete(getSources())
+          }
         }
       }
 
@@ -68,7 +71,9 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
       sourceId =>
         rejectEmptyResponse {
           onSuccess(getSource(sourceId)) { response =>
-            complete(response.maybeSource)
+            cors() {
+              complete(response.maybeSource)
+            }
           }
         }
     }
@@ -87,7 +92,9 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
     path("sources") {
       entity(as[Source]) { source =>
         onSuccess(createSource(source)) { performed =>
-          complete((StatusCodes.Created, performed))
+          cors() {
+            complete((StatusCodes.Created, performed))
+          }
         }
       }
     }
@@ -106,7 +113,9 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
     path("sources") {
       entity(as[Source]) { source =>
         onSuccess(updateSource(source)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
       }
     }
@@ -131,7 +140,9 @@ class SourceRoutes(sourceRegistry: ActorRef[SourceRegistry.Command])(implicit va
     path("sources" / Segment) {
       sourceId =>
         onSuccess(deleteSource(sourceId)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
     }
   }

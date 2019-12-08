@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.CityRegistry._
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
@@ -44,7 +45,9 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
   )
   def getCitiesRoute =
     path("cities") { get {
-          complete(getCities())
+          cors() {
+            complete(getCities())
+          }
         }
       }
 
@@ -68,7 +71,9 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
       cityId =>
         rejectEmptyResponse {
           onSuccess(getCity(cityId)) { response =>
-            complete(response.maybeCity)
+            cors() {
+              complete(response.maybeCity)
+            }
           }
         }
     }
@@ -87,7 +92,9 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
     path("cities") {
       entity(as[City]) { city =>
         onSuccess(createCity(city)) { performed =>
-          complete((StatusCodes.Created, performed))
+          cors() {
+            complete((StatusCodes.Created, performed))
+          }
         }
       }
     }
@@ -106,7 +113,9 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
     path("cities") {
       entity(as[City]) { city =>
         onSuccess(updateCity(city)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
       }
     }
@@ -131,7 +140,9 @@ class CityRoutes(cityRegistry: ActorRef[CityRegistry.Command])(implicit val syst
     path("cities" / Segment) {
       cityId =>
         onSuccess(deleteCity(cityId)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
     }
   }

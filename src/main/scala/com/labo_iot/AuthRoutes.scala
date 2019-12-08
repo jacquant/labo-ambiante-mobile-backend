@@ -8,6 +8,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.Credentials
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.AuthRegistry._
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
@@ -81,7 +82,9 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
         user => get {
           val loggedInUser = LoggedInUser(user)
           loggedInUsers.append(loggedInUser)
-          complete(loggedInUser.oAuthToken)
+          cors() {
+            complete(loggedInUser.oAuthToken)
+          }
         }
       }
     }
@@ -106,7 +109,9 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
       authenticateOAuth2(realm = "api", OAuthAuthenticator) { validToken =>
         rejectEmptyResponse {
           onSuccess(getFilterData(validToken.basicAuthCredentials.username)) {
-            response => complete(response.maybeFilterData)
+            response => cors() {
+              complete(response.maybeFilterData)
+            }
           }
         }
       }
@@ -132,7 +137,9 @@ class AuthRoutes(authRegistry: ActorRef[AuthRegistry.Command])(implicit val syst
       authenticateOAuth2(realm = "api", OAuthAuthenticator) { validToken =>
         rejectEmptyResponse {
           onSuccess(getEventData(validToken.basicAuthCredentials.username)) {
-            response => complete(response.maybeEventData)
+            response => cors() {
+              complete(response.maybeEventData)
+            }
           }
         }
       }

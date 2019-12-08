@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.CategoryRegistry._
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
@@ -44,7 +45,9 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
   )
   def getCategoriesRoute =
     path("categories") { get {
-          complete(getCategories())
+          cors() {
+            complete(getCategories())
+          }
         }
       }
 
@@ -68,7 +71,9 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
       categoryId =>
         rejectEmptyResponse {
           onSuccess(getCategory(categoryId)) { response =>
-            complete(response.maybeCategory)
+            cors() {
+              complete(response.maybeCategory)
+            }
           }
         }
     }
@@ -87,7 +92,9 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
     path("categories") {
       entity(as[Category]) { category =>
         onSuccess(createCategory(category)) { performed =>
-          complete((StatusCodes.Created, performed))
+          cors() {
+            complete((StatusCodes.Created, performed))
+          }
         }
       }
     }
@@ -106,7 +113,9 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
     path("categories") {
       entity(as[Category]) { category =>
         onSuccess(updateCategory(category)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
       }
     }
@@ -131,7 +140,9 @@ class CategoryRoutes(categoryRegistry: ActorRef[CategoryRegistry.Command])(impli
     path("categories" / Segment) {
       categoryId =>
         onSuccess(deleteCategory(categoryId)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
     }
   }
