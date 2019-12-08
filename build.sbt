@@ -16,6 +16,7 @@ lazy val root = (project in file(".")).
       "ch.qos.logback"    % "logback-classic"           % "1.2.3",
       "com.github.swagger-akka-http" %% "swagger-akka-http" % "2.0.4",
       "javax.ws.rs" % "javax.ws.rs-api" % "2.1.1",
+      "ch.megard" %% "akka-http-cors" % "0.4.2",
 
       "com.typesafe.akka" %% "akka-http-testkit"        % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion     % Test,

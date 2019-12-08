@@ -6,13 +6,14 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.labo_iot.EventRegistry._
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{Content, Schema}
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
-import io.swagger.v3.oas.annotations.parameters.RequestBody
-import javax.ws.rs.{Consumes, DELETE, GET, POST, PUT, Path}
+import javax.ws.rs._
 
 import scala.concurrent.Future
 
@@ -58,11 +59,13 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
         Symbol("sound_level_max").?, Symbol("sound_level_min").?)
       { (category, city, source, start_time_max, start_time_min, sound_level_max, sound_level_min) =>
         get {
-          complete(getEvents(new Params(category, city, source, start_time_max, start_time_min,
-            sound_level_max, sound_level_min)))
+          cors() {
+            complete(getEvents(new Params(category, city, source, start_time_max, start_time_min,
+              sound_level_max, sound_level_min)))
+          }
         }
       }
-  }
+    }
 
   @GET
   @Path("/events/{eventId}")
@@ -84,7 +87,9 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
       eventId =>
         rejectEmptyResponse {
           onSuccess(getEvent(eventId)) { response =>
-            complete(response.maybeEvent)
+            cors() {
+              complete(response.maybeEvent)
+            }
           }
         }
     }
@@ -104,7 +109,9 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     path("events") {
       entity(as[Event]) { event =>
         onSuccess(createEvent(event)) { performed =>
-          complete((StatusCodes.Created, performed))
+          cors() {
+            complete((StatusCodes.Created, performed))
+          }
         }
       }
     }
@@ -124,7 +131,9 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     path("events") {
       entity(as[Event]) { event =>
         onSuccess(updateEvent(event)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
       }
     }
@@ -149,7 +158,9 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     path("events" / Segment) {
       eventId =>
         onSuccess(deleteEvent(eventId)) { performed =>
-          complete((StatusCodes.OK, performed))
+          cors() {
+            complete((StatusCodes.OK, performed))
+          }
         }
     }
   }
