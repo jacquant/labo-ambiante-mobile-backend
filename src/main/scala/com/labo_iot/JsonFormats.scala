@@ -23,6 +23,8 @@ object JsonFormats  {
   implicit val sourcesJsonFormat = jsonFormat1(Sources)
 
   implicit val oAuthTokenJsonFormat = jsonFormat3(OAuthToken)
+  implicit val filterDataJsonFormat = jsonFormat5(FilterData)
+  implicit val eventDataJsonFormat = jsonFormat11(EventData)
 
   implicit val actionPerformedJsonFormat = jsonFormat1(ActionPerformed)
   implicit val categoryActionPerformedJsonFormat = jsonFormat1(CategoryActionPerformed)

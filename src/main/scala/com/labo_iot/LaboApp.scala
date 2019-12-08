@@ -42,11 +42,14 @@ object LaboApp {
       val sourceRegistryActor = context.spawn(SourceRegistry(), "SourceRegistryActor")
       context.watch(sourceRegistryActor)
 
+      val authRegistryActor = context.spawn(AuthRegistry(), "AuthRegistryActor")
+      context.watch(authRegistryActor)
+
       val routes = new EventRoutes(eventRegistryActor)(context.system).eventRoutes ~
         new CategoryRoutes(categoryRegistryActor)(context.system).categoryRoutes ~
         new CityRoutes(cityRegistryActor)(context.system).cityRoutes ~
         new SourceRoutes(sourceRegistryActor)(context.system).sourceRoutes ~
-        new AuthRoutes()(context.system).authRoutes ~
+        new AuthRoutes(authRegistryActor)(context.system).authRoutes ~
         SwaggerDocService.routes ~ getFromResourceDirectory("swagger-ui")
 
       startHttpServer(routes, context.system)
