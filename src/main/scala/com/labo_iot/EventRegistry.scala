@@ -1,5 +1,7 @@
 package com.labo_iot
 
+import java.util.UUID
+
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.http.scaladsl.model.DateTime
@@ -192,6 +194,41 @@ object EventRegistry {
     Event("44","Marchés aux Chrysanthèmes","Affaires économiques","2019-10-25T20:00:00","2019-11-01T22:00:00","Sans oublier la vente de fleurs sur les marchés de...","foire","5000","NAMUR","Place de l'Ange","","+32 (0) 81 24 72 26","affaires.economiques@ville.namur.be","https://www.namur.be/fr/agenda/marches-au-chrysanthemes",50.4639902487,4.8656460502, "namur-agenda-des-evenements",70.0)
   )
 
+  private def correctEvent(event: Event): Event = {
+    val correctedId = event.id match {
+      case "" => UUID.randomUUID().toString
+      case id => id
+    }
+    val correctedStart_time = DateTime.fromIsoDateTimeString(event.start_time) match {
+      case Some(_) => event.start_time
+      case None => DateTime.now.toIsoDateTimeString()
+    }
+    val correctedEnd_time = DateTime.fromIsoDateTimeString(event.end_time) match {
+      case Some(_) => event.end_time
+      case None => DateTime.now.toIsoDateTimeString()
+    }
+
+    Event(
+      correctedId,
+      event.title,
+      event.organizers,
+      correctedStart_time,
+      correctedEnd_time,
+      event.description,
+      event.category,
+      event.zip_code,
+      event.city,
+      event.street,
+      event.street_number,
+      event.phone,
+      event.mail,
+      event.website,
+      event.lat,
+      event.lon,
+      event.source,
+      event.sound_level)
+  }
+
   private def registry(events: Set[Event]): Behavior[Command] = {
     Behaviors.receiveMessage {
       case GetEvents(params, replyTo) =>
@@ -199,8 +236,9 @@ object EventRegistry {
         replyTo ! Events(filteredEvents.toSeq)
         Behaviors.same
       case CreateEvent(event, replyTo) =>
-        replyTo ! ActionPerformed(s"Event ${event.id} created.")
-        registry(events + event)
+        val correctedEvent = correctEvent(event)
+        replyTo ! ActionPerformed(s"Event ${correctedEvent.id} created.")
+        registry(events + correctedEvent)
       case GetEvent(id, replyTo) =>
         replyTo ! GetEventResponse(events.find(_.id == id))
         Behaviors.same
@@ -208,8 +246,9 @@ object EventRegistry {
         replyTo ! ActionPerformed(s"Event $id deleted.")
         registry(events.filterNot(_.id == id))
       case UpdateEvent(event, replyTo) =>
-        replyTo ! ActionPerformed(s"Event ${event.id} update.")
-        registry(events.filterNot(_.id == event.id) + event)
+        val correctedEvent = correctEvent(event)
+        replyTo ! ActionPerformed(s"Event ${correctedEvent.id} update.")
+        registry(events.filterNot(_.id == event.id) + correctedEvent)
     }
   }
 }
