@@ -8,6 +8,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
+import ch.megard.akka.http.cors.scaladsl.model.HttpHeaderRange
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.labo_iot.EventRegistry._
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -112,7 +113,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
       entity(as[Event]) { event =>
         onSuccess(createEvent(event)) { performed =>
           val methods = CorsSettings.defaultSettings.allowedMethods :+ HttpMethods.OPTIONS :+ HttpMethods.PUT
-          cors(settings = CorsSettings.defaultSettings.withAllowedMethods(methods)) {
+          cors(settings = CorsSettings.defaultSettings.withAllowedMethods(methods).withAllowedHeaders(HttpHeaderRange.*)) {
             complete((StatusCodes.Created, performed))
           }
         }
