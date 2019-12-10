@@ -3,6 +3,7 @@ package com.labo_iot
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
@@ -110,7 +111,8 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     path("events") {
       entity(as[Event]) { event =>
         onSuccess(createEvent(event)) { performed =>
-          cors(settings = CorsSettings.defaultSettings.withAllowedMethods(CorsSettings.defaultSettings.allowedMethods)) {
+          val methods = CorsSettings.defaultSettings.allowedMethods :+ HttpMethods.OPTIONS :+ HttpMethods.PUT
+          cors(settings = CorsSettings.defaultSettings.withAllowedMethods(methods)) {
             complete((StatusCodes.Created, performed))
           }
         }
