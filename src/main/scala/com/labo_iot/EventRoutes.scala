@@ -110,7 +110,7 @@ class EventRoutes(eventRegistry: ActorRef[EventRegistry.Command])(implicit val s
     path("events") {
       entity(as[Event]) { event =>
         onSuccess(createEvent(event)) { performed =>
-          cors(settings = CorsSettings.defaultSettings) {
+          cors(settings = CorsSettings.defaultSettings.withAllowedMethods(CorsSettings.defaultSettings.allowedMethods)) {
             complete((StatusCodes.Created, performed))
           }
         }
